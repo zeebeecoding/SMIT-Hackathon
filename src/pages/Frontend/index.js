@@ -4,7 +4,8 @@ import Header from "components/Header";
 import Footer from "components/Footer";
 import Sidebar from "components/Sidebar";
 import Attendence from "./Attendance";
-import Home from "./Student";
+import Student from "./Student";
+import Admin from "./Admin";
 import Course from "./Course";
 import Details from "./Student/Details";
 
@@ -20,8 +21,9 @@ export default function Index() {
             style={{ marginLeft: "15vw", width: "85vw" }}
           >
             <Routes>
-              <Route path="/" element={<Home />} />
+              <Route path="/" element={<Admin />} />
               <Route path="details/:id" element={<Details />} />
+              <Route path="/students" element={<Student />} />
               <Route path="/courses" element={<Course />} />
               <Route path="/attandences" element={<Attendence />} />
               <Route path="*" element={<h1>404</h1>} />

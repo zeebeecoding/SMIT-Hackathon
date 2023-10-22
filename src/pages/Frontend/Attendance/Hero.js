@@ -1,280 +1,149 @@
-import React, { useEffect, useState } from "react";
-import {
-  Avatar,
-  Button,
-  Col,
-  DatePicker,
-  Divider,
-  Form,
-  Image,
-  Input,
-  Modal,
-  Row,
-  Select,
-  Space,
-  Tooltip,
-  message,
-} from "antd";
-import { DeleteOutlined, EditOutlined, UserOutlined } from "@ant-design/icons";
-import dayjs from "dayjs";
-import { Link, useNavigate } from "react-router-dom";
-import {
-  collection,
-  deleteDoc,
-  doc,
-  getDocs,
-  query,
-  where,
-} from "firebase/firestore";
-import { firestore } from "config/firebase";
-import { useAuthContext } from "contexts/AuthContext";
+import React, { useState } from "react";
+import { useFetchStudents } from "../../../contexts/FetchStudents";
+import { useFetchCourses } from "../../../contexts/FetchCourses";
+import { doc, setDoc } from "firebase/firestore";
+import { firestore } from "../../../config/firebase";
+import { message } from "antd";
+import { useFetchAttendence } from "../../../contexts/FetchAttendence";
 
-export default function Hero() {
-  const { isAuth } = useAuthContext();
-  const { user } = useAuthContext();
-  const [allDocuments, setAllDocuments] = useState([]);
-  const [documents, setDocuments] = useState([]);
-  const [status, SetStatus] = useState("active");
-  const [attendence, setAttendence] = useState({});
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const navigate = useNavigate();
+export default function Attendence() {
+  const [state, setState] = useState("");
+  const { getStudents } = useFetchStudents();
+  const { getCourse } = useFetchCourses();
+  const { getAttendence } = useFetchAttendence();
+  console.log("getAttendence", getAttendence);
 
-  const handleChange = (e) =>
-    setAttendence((s) => ({ ...s, [e.target.name]: e.target.value }));
-  const handleDate = (_, date) => setAttendence((s) => ({ ...s, date }));
+  const getCourseId = getCourse.find((course) => course.courseName === state);
 
-  const getAttendences = async () => {
-    const q = query(
-      collection(firestore, "attendences"),
-      where("createdBy.uid", "==", user.uid)
+  let showStudents = [];
+
+  if (getCourseId) {
+    const filterstudents = getStudents.filter(
+      (student) => student.courseId === getCourseId.id
     );
+    showStudents = filterstudents;
+  }
 
-    const querySnapshot = await getDocs(q);
-    const array = [];
-    querySnapshot.forEach((doc) => {
-      // doc.data() is never undefined for query doc snapshots
-      let data = doc.data();
-      array.push(data);
-    });
-    setAllDocuments(array);
-    setDocuments(array);
-  };
+  const handlePresent = async (student) => {
+    const data = student;
+    data.date = new Date().toLocaleDateString();
+    data.attendence = "present";
 
-  useEffect(() => {
-    getAttendences();
-  }, []);
-
-  useEffect(() => {
-    const filteredDocuments = allDocuments.filter(
-      (attendence) => attendence.status === status
-    );
-    setDocuments(filteredDocuments);
-  }, [allDocuments, status]);
-
-  const handleUpdate = () => {
-    let { date } = attendence;
-
-    if (!date) {
-      return message.error("Please enter date");
-    }
-
-    const updatedattendence = {
-      date,
-      dateModified: new Date().getTime(),
-    };
-
-    const updatedattendences = documents.map((oldAttendence) => {
-      if (oldAttendence.id === attendence.id) return updatedattendence;
-      return oldAttendence;
-    });
-
-    setDocuments(updatedattendences);
-    localStorage.setItem("attendences", JSON.stringify(updatedattendences));
-    message.success("attendence updated successfully");
-    setIsModalOpen(false);
-  };
-
-  const handleDelete = async (attendence) => {
     try {
-      await deleteDoc(doc(firestore, "attendences", attendence.id));
-
-      let documentsAfterDelete = documents.filter(
-        (doc) => doc.id !== attendence.id
-      );
-      setAllDocuments(documentsAfterDelete);
-      setDocuments(documentsAfterDelete);
-
-      message.success("attendence deleted successfully");
-    } catch (err) {
-      console.error(err);
-      message.error("something went wrong while delting attendence");
+      await setDoc(doc(firestore, "attendence", data.id), data);
+      message.success("Successfully Done");
+      getAttendence.push(data);
+    } catch (e) {
+      console.error("Error adding document: ", e);
+      message.error("SomeThing went Wrong while taking Attendence");
     }
   };
+
+  const handleAbsent = async (student) => {
+    const data = student;
+    data.date = new Date().toLocaleDateString();
+    data.attendence = "absent";
+
+    try {
+      await setDoc(doc(firestore, "attendence", data.id), data);
+      message.success("Successfully Done");
+      getAttendence.push(data);
+    } catch (e) {
+      console.error("Error adding document: ", e);
+      message.error("SomeThing went Wrong while taking Attendence");
+    }
+  };
+  const tableRows = showStudents.map((student, i) => {
+    const account = getAttendence.find(
+      (attendence) => attendence.id === student.id
+    );
+    console.log("account", account);
+    return (
+      <tr key={i}>
+        <td>{i + 1}</td>
+        <td>{student.studentName}</td>
+        <td>{student.courseName}</td>
+
+        <td className="text-center">
+          <button
+            className={`btn btn-info p-1 py-0 rounded-2 me-0 me-md-1 ${
+              account && account.attendence === "present" ? "disabled" : ""
+            }`}
+            onClick={() => {
+              handlePresent(student);
+            }}
+          >
+            {" "}
+            <span className="text-white my-1 d-flex align-items-center">
+              Present
+            </span>{" "}
+          </button>
+
+          <button
+            className={`btn btn-danger p-1 py-0 rounded-2 ${
+              account && account.attendence === "absent" ? "disabled" : ""
+            }`}
+            onClick={() => {
+              handleAbsent(student);
+            }}
+          >
+            {" "}
+            <span className="text-white my-1 d-flex align-items-center">
+              Absent
+            </span>{" "}
+          </button>
+        </td>
+      </tr>
+    );
+  });
 
   return (
-    <>
-      <div className="py-5">
-        <div className="container">
+    <div className="container">
+      <div className="row">
+        <div className="col">
           <div className="row">
-            <div className="col text-center">
-              <h1>attendences</h1>
-              <Select
-                placeholder="Select status"
-                onChange={(status) => SetStatus(status)}
+            <h2>Attendence</h2>
+          </div>
+          <div className="row">
+            <div className="col-6">
+              <select
+                className="form-control"
+                name="courseName"
+                onChange={(e) => {
+                  setState(e.target.value);
+                }}
               >
-                {["active", "inactive"].map((status, i) => {
-                  return (
-                    <Select.Option key={i} value={status}>
-                      {status}
-                    </Select.Option>
-                  );
+                <option value="">Select Any Course</option>
+                {getCourse.map((course, i) => {
+                  return <option key={i}>{course.courseName}</option>;
                 })}
-              </Select>
-            </div>
-            <div className="d-flex">
-              <Link to="/dashboard" className="btn btn-info">
-                Add attendence
-              </Link>
+              </select>
             </div>
           </div>
-          <Divider />
-
-          <div className="row">
-            <div className="col">
-              <div className="table-responsive">
-                <table className="table table-striped align-middle">
+          <hr />
+          <div className="row mx-0 mb-2">
+            <div className="col bg-white rounded-3">
+              <div className="table-responsive rounded">
+                <table className="table">
                   <thead>
-                    <tr>
-                      <th>#</th>
-                      <th>Image</th>
-                      <th>Name</th>
-                      <th>Email</th>
-                      <th>Contact</th>
-                      <th>Date of birth</th>
-                      <th>Status</th>
-                      <th>Action</th>
+                    <tr
+                      className=""
+                      style={{ background: "#c1e6c3", color: "#005a16" }}
+                    >
+                      <th>Sr.No</th>
+                      <th>Student Name</th>
+                      <th>Course Name</th>
+
+                      <th className="text-center">Action</th>
                     </tr>
                   </thead>
-                  <tbody>
-                    {documents.map((attendence, i) => {
-                      return (
-                        <tr key={i}>
-                          <th>{i + 1}</th>
-                          <td>
-                            {attendence.file ? (
-                              <Image
-                                src={attendence.file}
-                                className="rounded-circle"
-                                style={{ width: 50 }}
-                              />
-                            ) : (
-                              <Avatar size={50} icon={<UserOutlined />} />
-                            )}
-                          </td>
-                          <td>
-                            <Link to={`/details/${attendence.id}`}>
-                              {attendence.name}
-                            </Link>
-                          </td>
-                          <td>{attendence.email}</td>
-                          <td>{attendence.contact}</td>
-                          <td>
-                            {attendence.date
-                              ? dayjs(attendence.date).format(
-                                  "dddd, DD/MM/YYYY"
-                                )
-                              : ""}
-                          </td>
-                          <td>{attendence.status}</td>
-                          <td>
-                            <Space>
-                              <Tooltip title="Delete" color="red">
-                                <Button
-                                  danger
-                                  icon={<DeleteOutlined />}
-                                  onClick={() => {
-                                    handleDelete(attendence);
-                                  }}
-                                />
-                              </Tooltip>
-                              <Tooltip title="Edit">
-                                <Button
-                                  type="primary"
-                                  icon={<EditOutlined />}
-                                  onClick={() => {
-                                    navigate(
-                                      `/dashboard/attendences/${attendence.id}`
-                                    );
-                                  }}
-                                />
-                              </Tooltip>
-                            </Space>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
+                  <tbody>{tableRows}</tbody>
                 </table>
               </div>
             </div>
           </div>
         </div>
       </div>
-
-      <Modal
-        title="Update attendence"
-        centered
-        open={isModalOpen}
-        onOk={handleUpdate}
-        okText="Confirm"
-        cancelText="Close"
-        onCancel={() => setIsModalOpen(false)}
-        style={{ width: 1000, maxWidth: 1000 }}
-      >
-        <Form layout="vertical" className="py-4">
-          <Row gutter={16}>
-            <Col xs={24} lg={8}>
-              <Form.Item label="Title">
-                <Input
-                  placeholder="Input your title"
-                  name="title"
-                  value={attendence.title}
-                  onChange={handleChange}
-                />
-              </Form.Item>
-            </Col>
-            <Col xs={24} lg={8}>
-              <Form.Item label="Location">
-                <Input
-                  placeholder="Input your location"
-                  name="location"
-                  value={attendence.location}
-                  onChange={handleChange}
-                />
-              </Form.Item>
-            </Col>
-            <Col xs={24} lg={8}>
-              <Form.Item label="Date">
-                <DatePicker
-                  className="w-100"
-                  value={attendence.date ? dayjs(attendence.date) : ""}
-                  onChange={handleDate}
-                />
-              </Form.Item>
-            </Col>
-            <Col span={24}>
-              <Form.Item label="Description" className="mb-0">
-                <Input.TextArea
-                  placeholder="Input your description"
-                  name="description"
-                  value={attendence.description}
-                  onChange={handleChange}
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-        </Form>
-      </Modal>
-    </>
+    </div>
   );
 }

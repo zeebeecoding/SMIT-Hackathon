@@ -5,7 +5,7 @@ export default function Footer() {
   return (
     <footer
       className="py-2 bg-primary"
-      style={{ marginLeft: "15vw", width: "83.75vw" }}
+      style={{ marginLeft: "15vw", width: "83.78vw" }}
     >
       <div className="container">
         <div className="row">

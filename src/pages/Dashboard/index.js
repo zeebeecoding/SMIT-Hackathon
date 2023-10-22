@@ -2,6 +2,7 @@ import React from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import AddStudent from "./AddStudent";
 import AddCourse from "./AddCourse";
+import AddAttendence from "./AddAttendence";
 import UpdateStudent from "./AddStudent/UpdateStudent";
 import UpdateCourse from "./AddCourse/UpdateCourse";
 import PrivateRoute from "components/PrivateRoute";
@@ -12,6 +13,7 @@ export default function Index() {
       <Routes>
         <Route path="/" element={<Navigate to="/dashboard/students" />} />
         <Route path="/" element={<Navigate to="/dashboard/courses" />} />
+        <Route path="/" element={<Navigate to="/dashboard/attendences" />} />
         <Route
           path="/students"
           element={
@@ -26,6 +28,15 @@ export default function Index() {
           element={
             <PrivateRoute
               Component={AddCourse}
+              allowedRoles={["superAdmin", "customer"]}
+            />
+          }
+        />
+        <Route
+          path="/attendences"
+          element={
+            <PrivateRoute
+              Component={AddAttendence}
               allowedRoles={["superAdmin", "customer"]}
             />
           }

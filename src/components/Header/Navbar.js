@@ -4,7 +4,7 @@ import { useAuthContext } from "contexts/AuthContext";
 import { signOut } from "firebase/auth";
 import React from "react";
 import { Link } from "react-router-dom";
-
+import SchoolIcon from "@mui/icons-material/School";
 export default function Navbar() {
   const { isAuth, dispatch } = useAuthContext();
 
@@ -31,7 +31,7 @@ export default function Navbar() {
       >
         <div className="container">
           <Link to="/" className="navbar-brand">
-            Logo
+            <SchoolIcon style={{ fontSize: "2em" }} />
           </Link>
           <button
             className="navbar-toggler"
@@ -45,23 +45,7 @@ export default function Navbar() {
             <span className="navbar-toggler-icon"></span>
           </button>
           <div className="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-              <li className="nav-item">
-                <Link to="/" className="nav-link">
-                  Home
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link to="/about" className="nav-link">
-                  About
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link to="/contact" className="nav-link">
-                  Contact
-                </Link>
-              </li>
-            </ul>
+            <ul className="navbar-nav me-auto mb-2 mb-lg-0"></ul>
             <div className="d-flex">
               {!isAuth ? (
                 <Link to="/auth/login" className="btn btn-light">
@@ -69,9 +53,6 @@ export default function Navbar() {
                 </Link>
               ) : (
                 <>
-                  <Link to="/dashboard" className="btn btn-info">
-                    Dashboard
-                  </Link>
                   <button
                     className="btn btn-danger ms-2"
                     onClick={handleLogout}
