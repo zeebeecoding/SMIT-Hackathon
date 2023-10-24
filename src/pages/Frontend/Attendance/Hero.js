@@ -5,23 +5,33 @@ import { doc, setDoc } from "firebase/firestore";
 import { firestore } from "../../../config/firebase";
 import { message } from "antd";
 import { useFetchAttendence } from "../../../contexts/FetchAttendence";
+import Select from "react-select";
 
 export default function Attendence() {
-  const [state, setState] = useState("");
+  const [state, setState] = useState({ courseName: [] });
   const { getStudents } = useFetchStudents();
-  const { getCourse } = useFetchCourses();
+  const { getCourses } = useFetchCourses();
   const { getAttendence } = useFetchAttendence();
-  console.log("getAttendence", getAttendence);
-
-  const getCourseId = getCourse.find((course) => course.courseName === state);
-
+  const selectedCourseName = state.courseName[0]; // Assuming you only allow one course to be selected
+  const getCourseId = getCourses.find(
+    (course) => course.id === selectedCourseName
+  );
   let showStudents = [];
 
   if (getCourseId) {
-    const filterstudents = getStudents.filter(
-      (student) => student.courseId === getCourseId.id
+    const filterstudents = getStudents.filter((student) =>
+      student.courseName.includes(getCourseId.name)
     );
     showStudents = filterstudents;
+  }
+  const courseId = getCourses.find(
+    (course) => course.id === selectedCourseName
+  );
+
+  let courseName = "";
+
+  if (courseId) {
+    courseName = courseId.name;
   }
 
   const handlePresent = async (student) => {
@@ -30,7 +40,7 @@ export default function Attendence() {
     data.attendence = "present";
 
     try {
-      await setDoc(doc(firestore, "attendence", data.id), data);
+      await setDoc(doc(firestore, "attendences", data.id), data);
       message.success("Successfully Done");
       getAttendence.push(data);
     } catch (e) {
@@ -45,7 +55,7 @@ export default function Attendence() {
     data.attendence = "absent";
 
     try {
-      await setDoc(doc(firestore, "attendence", data.id), data);
+      await setDoc(doc(firestore, "attendences", data.id), data);
       message.success("Successfully Done");
       getAttendence.push(data);
     } catch (e) {
@@ -61,8 +71,8 @@ export default function Attendence() {
     return (
       <tr key={i}>
         <td>{i + 1}</td>
-        <td>{student.studentName}</td>
-        <td>{student.courseName}</td>
+        <td>{student.name}</td>
+        <td>{courseName}</td>
 
         <td className="text-center">
           <button
@@ -87,18 +97,20 @@ export default function Attendence() {
               handleAbsent(student);
             }}
           >
-            {" "}
             <span className="text-white my-1 d-flex align-items-center">
               Absent
-            </span>{" "}
+            </span>
           </button>
         </td>
       </tr>
     );
   });
-
+  const options = getCourses.map((course) => ({
+    value: course.id,
+    label: course.name,
+  }));
   return (
-    <div className="container">
+    <div className="container mt-5 pt-4">
       <div className="row">
         <div className="col">
           <div className="row">
@@ -106,18 +118,22 @@ export default function Attendence() {
           </div>
           <div className="row">
             <div className="col-6">
-              <select
-                className="form-control"
+              <Select
+                isMulti
+                className="basic-single"
+                classNamePrefix="select"
                 name="courseName"
-                onChange={(e) => {
-                  setState(e.target.value);
+                value={options.filter((option) =>
+                  state.courseName.includes(option.value)
+                )}
+                onChange={(selectedOptions) => {
+                  setState((prevState) => ({
+                    ...prevState,
+                    courseName: selectedOptions.map((option) => option.value),
+                  }));
                 }}
-              >
-                <option value="">Select Any Course</option>
-                {getCourse.map((course, i) => {
-                  return <option key={i}>{course.courseName}</option>;
-                })}
-              </select>
+                options={options}
+              />
             </div>
           </div>
           <hr />

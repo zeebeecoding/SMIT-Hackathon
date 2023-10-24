@@ -1,11 +1,17 @@
-import { collection, getDocs } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  onSnapshot,
+  doc,
+  setDoc,
+} from "firebase/firestore";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { firestore } from "../config/firebase";
 
 const FetchCourses = createContext();
 
 export default function FetchCoursesProvider({ children }) {
-  const [getCourse, setGetCourse] = useState([]);
+  const [getCourses, setGetCourses] = useState([]);
 
   const showCourses = async () => {
     const querySnapshot = await getDocs(collection(firestore, "courses"));
@@ -14,16 +20,41 @@ export default function FetchCoursesProvider({ children }) {
 
     querySnapshot.forEach((doc) => {
       const data = doc.data();
-      docArray.push(data);
+      docArray.push({ id: doc.id, ...data });
     });
-    setGetCourse(docArray);
+    setGetCourses(docArray);
   };
+
+  const updateCourse = async (id, updatedData) => {
+    try {
+      const courseRef = doc(firestore, "courses", id);
+      await setDoc(courseRef, updatedData, { merge: true });
+    } catch (error) {
+      throw new Error("Error updating course: " + error.message);
+    }
+  };
+
   useEffect(() => {
     showCourses();
+
+    // Set up a real-time listener for courses
+    const unsubscribe = onSnapshot(
+      collection(firestore, "courses"),
+      (snapshot) => {
+        const docArray = [];
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          docArray.push({ id: doc.id, ...data });
+        });
+        setGetCourses(docArray);
+      }
+    );
+
+    return () => unsubscribe(); // Clean up the listener when the component is unmounted
   }, []);
 
   return (
-    <FetchCourses.Provider value={{ getCourse, setGetCourse }}>
+    <FetchCourses.Provider value={{ getCourses, setGetCourses, updateCourse }}>
       {children}
     </FetchCourses.Provider>
   );

@@ -1,0 +1,29 @@
+ul{
+    li{
+        font-size: 15px;
+        border-radius: 4px;
+        line-height: 22px;
+    }
+    span{
+        color:  #005a16;
+    }
+    a{
+        i{
+            color:#005a16;
+        }
+    }
+    .active{
+        background-color: #e9ecef;
+
+        
+    }
+    li:hover{
+        background-color: #e9ecef;
+        font-weight:600;
+
+    }
+    .dropdown-item:hover{
+        background-color: #e9ecef;
+
+    }
+}

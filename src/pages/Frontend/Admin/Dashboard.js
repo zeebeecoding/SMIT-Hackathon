@@ -10,7 +10,7 @@ import { auth } from "config/firebase";
 
 const Dashboard = () => {
   const { getStudents } = useFetchStudents();
-  const { getCourse } = useFetchCourses();
+  const { getCourses } = useFetchCourses();
   const { getAttendence } = useFetchAttendence();
   const [userName, setUserName] = useState(null);
 
@@ -48,7 +48,7 @@ const Dashboard = () => {
                   <MenuBookIcon size={22} />{" "}
                 </span>
                 <span>
-                  {getCourse.length}
+                  {getCourses.length}
                   <p>Courses</p>{" "}
                 </span>
               </div>

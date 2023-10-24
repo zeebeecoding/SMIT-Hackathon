@@ -3,7 +3,7 @@ import { Route, Routes } from "react-router-dom";
 import Header from "components/Header";
 import Footer from "components/Footer";
 import Sidebar from "components/Sidebar";
-import Attendence from "./Attendance";
+import Attendance from "./Attendance";
 import Student from "./Student";
 import Admin from "./Admin";
 import Course from "./Course";
@@ -25,7 +25,7 @@ export default function Index() {
               <Route path="details/:id" element={<Details />} />
               <Route path="/students" element={<Student />} />
               <Route path="/courses" element={<Course />} />
-              <Route path="/attandences" element={<Attendence />} />
+              <Route path="/attendences" element={<Attendance />} />
               <Route path="*" element={<h1>404</h1>} />
             </Routes>
           </div>

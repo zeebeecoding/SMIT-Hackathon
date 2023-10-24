@@ -1,0 +1,33 @@
+.homeTag1{
+    border-radius: 50px 10px 50px 10px;
+    color: #3f3672;
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+}
+.homeTag1{
+    .tagIcon{
+        background-color: white;
+        padding: 8px;
+        border-radius: 10px 5px 10px 5px;
+    }
+}
+.homeTag1{
+    span{
+      margin-left:15px;
+      padding-top: 10px;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    p{
+        font-size: 12px;
+    }
+}
+
+@media screen and (max-width: 780px) {
+    #abc {
+      height: 95vh !important;
+    }
+  }
