@@ -5,7 +5,7 @@ import AddCourse from "./AddCourse";
 import AddAttendence from "./AddAttendence";
 import UpdateStudent from "./AddStudent/UpdateStudent";
 import UpdateCourse from "./AddCourse/UpdateCourse";
-import PrivateRoute from "components/PrivateRoute";
+import PrivateRoute from "../../Components/PrivateRoute";
 
 export default function Index() {
   return (

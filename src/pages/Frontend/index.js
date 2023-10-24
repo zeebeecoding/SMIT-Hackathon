@@ -1,8 +1,8 @@
 import React from "react";
 import { Route, Routes } from "react-router-dom";
-import Header from "components/Header";
-import Footer from "components/Footer";
-import Sidebar from "components/Sidebar";
+import Header from "Components/Header";
+import Footer from "Components/Footer";
+import Sidebar from "Components/Sidebar";
 import Attendance from "./Attendance";
 import Student from "./Student";
 import Admin from "./Admin";

@@ -1,18 +1,17 @@
-import './App.scss';
+import "./App.scss";
 import "bootstrap/dist/js/bootstrap.bundle";
-import { useAuthContext } from 'contexts/AuthContext';
-import Routes from "pages/Routes"
+import { useAuthContext } from "contexts/AuthContext";
+import Routes from "./Pages/Routes";
 
 function App() {
-
-  const { isAppLoading } = useAuthContext()
+  const { isAppLoading } = useAuthContext();
 
   if (isAppLoading)
     return (
       <div className="loader-container">
         <span className="loader"></span>
       </div>
-    )
+    );
 
   return (
     <>

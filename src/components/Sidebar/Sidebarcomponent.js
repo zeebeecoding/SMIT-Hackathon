@@ -87,7 +87,6 @@ function Sidebarcomponent() {
               }`}
               onClick={() => handleItemClick("logout")}
             >
-              <i className="fas fa-chart-line fa-fw me-3"></i>
               <span>Logout</span>
             </Link>
           </div>
