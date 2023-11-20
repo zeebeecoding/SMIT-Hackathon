@@ -5,7 +5,7 @@ import Frontend from "./Frontend";
 import Auth from "./Auth";
 import Dashboard from "./Dashboard";
 import { useAuthContext } from "contexts/AuthContext";
-import PrivateRoute from "../Components/PrivateRoute";
+import PrivateRoute from "../components/PrivateRoute";
 
 export default function Index() {
   const { isAuth } = useAuthContext();
