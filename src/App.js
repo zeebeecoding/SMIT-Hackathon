@@ -1,7 +1,7 @@
 import "./App.scss";
 import "bootstrap/dist/js/bootstrap.bundle";
 import { useAuthContext } from "contexts/AuthContext";
-import Routes from "./Pages/Routes";
+import Routes from "./pages/Routes";
 
 function App() {
   const { isAppLoading } = useAuthContext();
